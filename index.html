@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Age Calculator Pro</title>
+    <style>
+        /* ===== BASE STYLES ===== */
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --accent: #ff4d4d;
+            --text: #333333;
+            --light-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        /* ===== CALCULATOR CONTAINER ===== */
+        .calculator {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+
+        .calculator h1 {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .calculator p {
+            text-align: center;
+            padding: 0 20px 20px;
+            color: #555;
+        }
+
+        /* ===== INPUT SECTION ===== */
+        .input-card {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .input-row {
+            margin-bottom: 15px;
+        }
+
+        .input-row label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .input-row input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--light-bg);
+        }
+
+        #calculate-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #calculate-btn:hover {
+            background: #e04444;
+        }
+
+        /* ===== RESULTS DASHBOARD ===== */
+        .results-dashboard {
+            padding: 20px;
+            display: none; /* Hidden by default */
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .tab-btn.active:after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        /* ===== TAB CONTENT STYLES ===== */
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* Core Metrics Grid */
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-card {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .big-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 5px 0;
+        }
+
+        .big-number span {
+            font-size: 16px;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .progress-bar-static {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+
+        /* Time Units Grid */
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .time-unit {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .time-unit h3 {
+            font-size: 24px;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        /* Milestones List */
+        .milestone-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .milestone {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--light-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .milestone span {
+            font-size: 24px;
+        }
+
+        .milestone.future {
+            background: #f0f7ff;
+            border-color: #cce0ff;
+        }
+
+        /* Astrology Grid */
+        .astro-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .astro-card {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .astro-card h3 {
+            color: var(--primary);
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        /* Science Facts */
+        .science-facts {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .fact {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid var(--border);
+        }
+
+        .fact h3 {
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-buttons button {
+            flex: 1;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        #print-btn {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        #share-btn {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* ===== RESPONSIVE DESIGN ===== */
+        @media (max-width: 600px) {
+            .metric-grid,
+            .time-grid,
+            .astro-grid,
+            .science-facts {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 5px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>ULTIMATE AGE CALCULATOR PRO</h1>
+        <p>Discover everything about your age - beyond just years</p>
+        
+        <div class="input-card">
+            <div class="input-row">
+                <label>Your Birth Date</label>
+                <input type="date" id="birthdate" max="2025-12-31">
+            </div>
+            
+            <div class="input-row">
+                <label>Compare With (Optional)</label>
+                <input type="date" id="compare-date">
+            </div>
+            
+            <div class="input-row">
+                <label>Future Year Projection (e.g., 2050)</label>
+                <input type="number" id="future-year" placeholder="Enter year">
+            </div>
+            
+            <button id="calculate-btn">CALCULATE MY AGE IN DETAIL</button>
+        </div>
+        
+        <div class="results-dashboard">
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="core">Core Metrics</button>
+                <button class="tab-btn" data-tab="time">Time Units</button>
+                <button class="tab-btn" data-tab="milestones">Milestones</button>
+                <button class="tab-btn" data-tab="astrology">Astrology+</button>
+                <button class="tab-btn" data-tab="science">Science View</button>
+            </div>
+            
+            <!-- Tab Contents -->
+            <div class="tab-content">
+                <!-- CORE METRICS TAB -->
+                <div class="tab-pane active" id="core">
+                    <div class="metric-grid">
+                        <div class="metric-card">
+                            <h3>Chronological Age</h3>
+                            <p class="big-number" id="chrono-age">0 <span>years</span></p>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <h3>Biological Age</h3>
+                            <p class="big-number" id="bio-age">0 <span>years</span></p>
+                            <small>(Estimate based on averages)</small>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <h3>Life Progress</h3>
+                            <div class="progress-bar-static">
+                                <div class="progress" id="life-progress"></div>
+                            </div>
+                            <p id="life-percent">0% of average lifespan</p>
+                        </div>
+                        
+                        <div class="metric-card">
+                            <h3>Retirement Countdown</h3>
+                            <p class="big-number" id="retirement">0 <span>years left</span></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- TIME UNITS TAB -->
+                <div class="tab-pane" id="time">
+                    <div class="time-grid">
+                        <div class="time-unit">
+                            <p>Seconds Lived</p>
+                            <h3 id="seconds-lived">0</h3>
+                        </div>
+                        <div class="time-unit">
+                            <p>Minutes Lived</p>
+                            <h3 id="minutes-lived">0</h3>
+                        </div>
+                        <div class="time-unit">
+                            <p>Days Lived</p>
+                            <h3 id="days-lived">0</h3>
+                        </div>
+                        <div class="time-unit">
+                            <p>Weeks Lived</p>
+                            <h3 id="weeks-lived">0</h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- MILESTONES TAB -->
+                <div class="tab-pane" id="milestones">
+                    <div class="milestone-list">
+                        <div class="milestone">
+                            <span>🎓</span>
+                            <p>Average Graduation Age: <strong id="grad-age">22</strong> (<span id="grad-diff">0</span> years ago)</p>
+                        </div>
+                        <div class="milestone">
+                            <span>💍</span>
+                            <p>Average Marriage Age: <strong id="marriage-age">28</strong> (<span id="marriage-diff">0</span> years ago)</p>
+                        </div>
+                        <div class="milestone future">
+                            <span>👴</span>
+                            <p>Will reach 100 in: <strong id="century-year">2090</strong></p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ASTROLOGY TAB -->
+                <div class="tab-pane" id="astrology">
+                    <div class="astro-grid">
+                        <div class="astro-card">
+                            <h3>Western Zodiac</h3>
+                            <p id="zodiac-sign">♈ Aries</p>
+                        </div>
+                        <div class="astro-card">
+                            <h3>Chinese Zodiac</h3>
+                            <p id="chinese-zodiac">🐉 Dragon</p>
+                        </div>
+                        <div class="astro-card">
+                            <h3>Birthstone</h3>
+                            <p id="birthstone">💎 Diamond</p>
+                        </div>
+                        <div class="astro-card">
+                            <h3>Life Path Number</h3>
+                            <p id="life-path">7 (The Seeker)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SCIENCE VIEW TAB -->
+                <div class="tab-pane" id="science">
+                    <div class="science-facts">
+                        <div class="fact">
+                            <p>🌍 World Population at Birth:</p>
+                            <h3 id="world-pop">5.3 billion</h3>
+                        </div>
+                        <div class="fact">
+                            <p>🔄 Earth Revolutions:</p>
+                            <h3 id="earth-revolutions">0 trips around the sun</h3>
+                        </div>
+                        <div class="fact">
+                            <p>⚡ Average Cell Regeneration:</p>
+                            <h3 id="cell-renewal">Your cells have renewed ~0 times</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- BOTTOM ACTION BUTTONS -->
+            <div class="action-buttons">
+                <button id="print-btn">🖨️ Print Age Certificate</button>
+                <button id="share-btn">📱 Share My Age Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab Switching Logic
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove active class from all
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    tabPanes.forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked
+                    btn.classList.add('active');
+                    const tabId = btn.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Calculate Button Functionality
+            document.getElementById('calculate-btn').addEventListener('click', calculateAgeDetails);
+            
+            function calculateAgeDetails() {
+                const birthdateInput = document.getElementById('birthdate').value;
+                if (!birthdateInput) return alert('Please enter your birthdate');
+                
+                const birthdate = new Date(birthdateInput);
+                const today = new Date();
+                const futureYear = document.getElementById('future-year').value;
+                
+                // Core Age Calculation
+                const age = calculateAge(birthdate, today);
+                
+                // Update Core Metrics
+                document.getElementById('chrono-age').innerHTML = `${age.years} <span>years</span>`;
+                document.getElementById('bio-age').innerHTML = `${Math.max(age.years - 3, 18)} <span>years</span>`;
+                
+                // Life Progress (assuming 80 year lifespan)
+                const lifePercentage = ((age.years / 80) * 100).toFixed(1);
+                document.getElementById('life-progress').style.width = `${lifePercentage}%`;
+                document.getElementById('life-percent').textContent = 
+                    `${lifePercentage}% of average life lived`;
+                
+                // Retirement (assuming retirement at 60)
+                const yearsToRetirement = Math.max(60 - age.years, 0);
+                document.getElementById('retirement').innerHTML = `${yearsToRetirement} <span>years left</span>`;
+                
+                // Time Units
+                const daysLived = Math.floor((today - birthdate) / (1000 * 60 * 60 * 24));
+                document.getElementById('seconds-lived').textContent = (daysLived * 86400).toLocaleString();
+                document.getElementById('minutes-lived').textContent = (daysLived * 1440).toLocaleString();
+                document.getElementById('days-lived').textContent = daysLived.toLocaleString();
+                document.getElementById('weeks-lived').textContent = Math.floor(daysLived/7).toLocaleString();
+                
+                // Milestones
+                document.getElementById('grad-diff').textContent = age.years - 22;
+                document.getElementById('marriage-diff').textContent = age.years - 28;
+                document.getElementById('century-year').textContent = birthdate.getFullYear() + 100;
+                
+                // Astrology (simplified)
+                const zodiacSigns = [
+                    {name: "♈ Aries", dates: "Mar 21 - Apr 19"},
+                    {name: "♉ Taurus", dates: "Apr 20 - May 20"},
+                    {name: "♊ Gemini", dates: "May 21 - Jun 20"},
+                    {name: "♋ Cancer", dates: "Jun 21 - Jul 22"},
+                    {name: "♌ Leo", dates: "Jul 23 - Aug 22"},
+                    {name: "♍ Virgo", dates: "Aug 23 - Sep 22"},
+                    {name: "♎ Libra", dates: "Sep 23 - Oct 22"},
+                    {name: "♏ Scorpio", dates: "Oct 23 - Nov 21"},
+                    {name: "♐ Sagittarius", dates: "Nov 22 - Dec 21"},
+                    {name: "♑ Capricorn", dates: "Dec 22 - Jan 19"},
+                    {name: "♒ Aquarius", dates: "Jan 20 - Feb 18"},
+                    {name: "♓ Pisces", dates: "Feb 19 - Mar 20"}
+                ];
+                
+                const month = birthdate.getMonth() + 1;
+                const day = birthdate.getDate();
+                let zodiac = "";
+                
+                if ((month == 3 && day >= 21) || (month == 4 && day <= 19)) zodiac = zodiacSigns[0].name;
+                else if ((month == 4 && day >= 20) || (month == 5 && day <= 20)) zodiac = zodiacSigns[1].name;
+                else if ((month == 5 && day >= 21) || (month == 6 && day <= 20)) zodiac = zodiacSigns[2].name;
+                else if ((month == 6 && day >= 21) || (month == 7 && day <= 22)) zodiac = zodiacSigns[3].name;
+                else if ((month == 7 && day >= 23) || (month == 8 && day <= 22)) zodiac = zodiacSigns[4].name;
+                else if ((month == 8 && day >= 23) || (month == 9 && day <= 22)) zodiac = zodiacSigns[5].name;
+                else if ((month == 9 && day >= 23) || (month == 10 && day <= 22)) zodiac = zodiacSigns[6].name;
+                else if ((month == 10 && day >= 23) || (month == 11 && day <= 21)) zodiac = zodiacSigns[7].name;
+                else if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) zodiac = zodiacSigns[8].name;
+                else if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) zodiac = zodiacSigns[9].name;
+                else if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) zodiac = zodiacSigns[10].name;
+                else zodiac = zodiacSigns[11].name;
+                
+                document.getElementById('zodiac-sign').textContent = zodiac;
+                
+                // Science Facts
+                document.getElementById('earth-revolutions').textContent = `${age.years} trips around the sun`;
+                document.getElementById('cell-renewal').textContent = `Your cells have renewed ~${Math.floor(age.years/7)} times`;
+                
+                // Show results
+                document.querySelector('.results-dashboard').style.display = 'block';
+            }
+            
+            function calculateAge(birthdate, endDate = new Date()) {
+                let years = endDate.getFullYear() - birthdate.getFullYear();
+                let months = endDate.getMonth() - birthdate.getMonth();
+                let days = endDate.getDate() - birthdate.getDate();
+                
+                if (days < 0) {
+                    months--;
+                    days += new Date(endDate.getFullYear(), endDate.getMonth(), 0).getDate();
+                }
+                
+                if (months < 0) {
+                    years--;
+                    months += 12;
+                }
+                
+                return { years, months, days };
+            }
+            
+            // Print Functionality
+            document.getElementById('print-btn').addEventListener('click', () => {
+                window.print();
+            });
+            
+            // Share Functionality
+            document.getElementById('share-btn').addEventListener('click', () => {
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'My Age Report',
+                        text: 'Check out my detailed age analysis!',
+                        url: window.location.href
+                    });
+                } else {
+                    alert('Web Share API not supported in your browser');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
